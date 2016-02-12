@@ -1,0 +1,28 @@
+var Sequelize = require('sequelize');  --> initializing sequelize module
+var db = new Sequelize('reddit', 'foofighter0991', undefined, {  --> gaining access
+	dialect: 'mysql'
+});
+var User = db.define('user', {    --> here we are defining a table called user that has two columns (username and password) much like an object with two properties
+    username: Sequelize.STRING,   --> the .STRING was selected since the username and password are strings and can be anything typed
+    password: Sequelize.STRING // TODO: make the passwords more secure!
+});
+
+// Even though the content belongs to users, we will setup the userId relationship later
+var Content = db.define('content', {
+    url: Sequelize.STRING,
+    title: Sequelize.STRING
+});
+
+// Even though a vote has a link to user and content, we will setup the relationship later
+var Vote = db.define('vote', {
+    upVote: Sequelize.BOOLEAN     ---> .BOOLEAN was selected here since it will give a truthy or falsy value depending on if it is upvoted or downvoted.
+});
+
+// User <-> Content relationship
+Content.belongsTo(User); // This will add a `setUser` function on content objects     -->joining content and user
+User.hasMany(Content); // This will add an `addContent` function on user objects      -->each user can have multiple content 
+
+// User <-> Vote <-> Content relationship
+User.belongsToMany(Content, {through: Vote, as: 'Upvotes'}); // This will add an `add`   -->each user can upvote on multiple content 
+Content.belongsToMany(User, {through: Vote});                                            -->multiple users can upvote each piece of content. 
+                             
